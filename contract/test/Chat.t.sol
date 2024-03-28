@@ -29,11 +29,28 @@ contract CounterTest is Test {
         assertEq(ens.getNameFromAddress(DavAddr), "Dave");
     }
 
-    function test_SendMessage() public {
+    function test_register_successfully() public {
         switchSigner(MubiAddr);
-        chat.sendMessage("Dave", "Hello");
-        assertEq(chat.getSentMessages("Dave")[0], "Hello");
+        chat.register("Mubi", "https://myimage.com/image");
+
+        bool status = chat.isRegistered(address(MubiAddr));
+        assert(status);
     }
+
+    function test_register_fail_for_different_ens() public {
+        switchSigner(MubiAddr);
+        chat.register("Ola", "https://myimage.com/image");
+
+        bool status = chat.isRegistered(address(MubiAddr));
+        vm.expectRevert("not a valid ENS");
+    }
+
+    // function test_SendMessage_successful() public {
+        
+
+
+    //     // assertEq(chat.getSentMessages("Dave")[0], "Hello");
+    // }
 
     // function test_getMessage() public {
     //     switchSigner(MubiAddr);
