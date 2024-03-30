@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
-import AbiChat from "./abiChat.json"
+import AbiChat from "./abiChat.json";
+import AbiEns from "./abiEns.json"
 
 export const getChatContract = (providerOrSigner) =>
     new ethers.Contract(
@@ -8,24 +9,9 @@ export const getChatContract = (providerOrSigner) =>
         providerOrSigner
     );
 
-
-export const getStakingContract = (providerOrSigner) =>
+export const getEnsContract = (providerOrSigner) =>
     new ethers.Contract(
-        import.meta.env.VITE_staking_contract_address,
-        AbiStaking,
-        providerOrSigner
-    );
-
-export const getERC20RewardContract = (providerOrSigner) =>
-    new ethers.Contract(
-        import.meta.env.VITE_erc20_reward_contract_address,
-        AbiERC20,
-        providerOrSigner
-    );
-
-export const getERC20StakingContract = (providerOrSigner) =>
-    new ethers.Contract(
-        import.meta.env.VITE_erc20_staking_contract_address,
-        AbiERC20,
+        import.meta.env.VITE_ens_contract_address,
+        AbiEns,
         providerOrSigner
     );

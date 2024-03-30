@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.0;
 
 import "./IENS.sol";
+import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
+import "@openzeppelin/contracts/metatx/ERC2771Forwarder.sol";
 
-contract Chat {
+contract Chat is ERC2771Context {
     IENS ens;
     uint256 chatId;
 
-    constructor(address ENS) {
+    constructor(address ENS, ERC2771Forwarder forwarder) ERC2771Context(address(forwarder)) {
         ens = IENS(ENS);
     }
 
@@ -25,7 +27,6 @@ contract Chat {
 
     struct Profile {
         string name;
-        string imageURI;
         bool registered;
     }
 
@@ -37,18 +38,15 @@ contract Chat {
     mapping(address => Profile)  profilesMapping;
     Profile[] profiles; 
 
-    
-
-    function register(string memory _name, string memory _imageUri) external {
+    function register(string memory _name) external {
         require(ens.getAddressFromName(_name) != address(0), "not a valid ENS");
-        require(ens.getAddressFromName(_name) == msg.sender, "ENS does not match your address");
-        require(!isRegistered(msg.sender), "You are already registered");
+        require(ens.getAddressFromName(_name) == _msgSender(), "ENS does not match your address");
+        require(!isRegistered(_msgSender()), "You are already registered");
         Profile memory newProfile;
         newProfile.name = _name;
-        newProfile.imageURI = _imageUri;
         newProfile.registered = true;
 
-        profilesMapping[msg.sender] = newProfile;
+        profilesMapping[_msgSender()] = newProfile;
         profiles.push(newProfile);
     }
 
@@ -71,18 +69,18 @@ contract Chat {
     ) external {
         address receiver = ens.getAddressFromName(_receiver);
 
-        require(isRegistered(msg.sender), "You are not registered");
+        require(isRegistered(_msgSender()), "You are not registered");
         require(isRegistered(receiver), "Receiver not registered");
 
-        string memory sender = ens.getNameFromAddress(msg.sender);
+        string memory sender = ens.getNameFromAddress(_msgSender());
 
-        uint256 myChatId = chatsIds[msg.sender][receiver];
-        uint256 friendChatId = chatsIds[receiver][msg.sender];
+        uint256 myChatId = chatsIds[_msgSender()][receiver];
+        uint256 friendChatId = chatsIds[receiver][_msgSender()];
 
         if (myChatId == friendChatId && myChatId == 0) {
             chatId = chatId + 1;
-            chatsIds[msg.sender][receiver] = chatId;
-            chatsIds[receiver][msg.sender] = chatId;
+            chatsIds[_msgSender()][receiver] = chatId;
+            chatsIds[receiver][_msgSender()] = chatId;
             myChatId= chatId;
         }
 
@@ -94,12 +92,12 @@ contract Chat {
 
         emit MessageSent(_receiver, sender, _message);
 
-        if (!conversationListMapping[msg.sender][receiver]) {
-            conversationList[msg.sender].push(_receiver);
+        if (!conversationListMapping[_msgSender()][receiver]) {
+            conversationList[_msgSender()].push(_receiver);
             conversationList[receiver].push(sender);
 
-            conversationListMapping[msg.sender][receiver] = true;
-            conversationListMapping[receiver][msg.sender] = true;
+            conversationListMapping[_msgSender()][receiver] = true;
+            conversationListMapping[receiver][_msgSender()] = true;
         }
     }
 
@@ -107,14 +105,14 @@ contract Chat {
     function getChats(
         string calldata _receiver
     ) external view returns (Message[] memory) {
-        require(isRegistered(msg.sender), "you are not registered");
+        require(isRegistered(_msgSender()), "you are not registered");
         address receiver = ens.getAddressFromName(_receiver);
-        uint256 myChatId = chatsIds[msg.sender][receiver];
+        uint256 myChatId = chatsIds[_msgSender()][receiver];
         Message[] memory chat = chats[myChatId];
         return chat;
     }
 
     function getConversationList() external view returns (string[] memory) {
-        return conversationList[msg.sender];
+        return conversationList[_msgSender()];
     }
 }

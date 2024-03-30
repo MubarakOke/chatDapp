@@ -1,0 +1,10 @@
+.header {
+    /* max-width: 1280px; */
+    position: relative;
+    margin: 0 auto;
+    padding: 1rem;
+    padding-right: 5rem;
+    padding-left: 5rem;
+    text-align: center;
+    z-index: 1999;
+}

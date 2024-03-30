@@ -1,0 +1,54 @@
+body{
+    background: linear-gradient(90deg, #080F17 0%, #2C3842 100%);
+    box-sizing: border-box;
+    margin: 0;
+  
+  }
+  
+  .navbardiv{
+  
+  }
+  
+  .signupparent{
+  
+  }
+  
+  .signupdesign1{
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+  }
+  
+  .signupdesign2{
+    position: absolute;
+    left: -11px;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .signupwrapper{
+    margin-top: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .signupillustration{
+    z-index: 3;
+  }
+  
+  .signupcontent{
+    max-width: 790px;
+  }
+  
+  .signupimage{
+    margin-left: 90px;
+  }
+  
+  .signform{
+    position: relative;
+    max-width: 790px;
+    right: 15rem;
+  }
+  

@@ -1,51 +1,50 @@
 import { Camera, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Button,Text, TextField } from "@radix-ui/themes";
-import axios from "axios";
+import toast from 'react-hot-toast';
+import useSetEnsDetail from "../hooks/useSetEnsDetail";
+import useUploadToIPFS from "../hooks/useUploadToIPFS";
 
 export default function FormComponent() {
-  const [selectedFile, setSelectedFile] = useState();
+  const [selectedFile, setSelectedFile] = useState(null);
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const setEnsDetail = useSetEnsDetail();
+  const uploadToIPFS = useUploadToIPFS(selectedFile);
 
   const handleSelectImage = (e) => {
+    e.preventDefault();
     setSelectedFile(e.target.files[0]);
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-    //   const response = await axios.post(
-    //     "https://api.pinata.cloud/pinning/pinFileToIPFS",
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Content-Type": "multipart/form-data",
-    //         pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
-    //         pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET_API_KEY,
-    //       },
-    //     }
-    //   );
-
-    //   const fileUrl = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
-      console.log("File URL:", fileUrl);
-    } catch (error) {
-      console.log("Pinata API Error:", error);
-    } finally {
-      setIsLoading(false);
+    if (!selectedFile || !username){
+      toast.error('Please fill all fields!');
+      return
     }
-  };
+
+    try{
+      setIsLoading(true);
+      const imageUri= await uploadToIPFS();
+      await setEnsDetail(username, imageUri); 
+    }
+    catch(error){
+      toast.error(`Creating account failed! ${error.reason}`)
+      setIsLoading(false);
+    }   
+    finally{
+      setIsLoading(false);
+    }   
+};
+
 
   return (
-    <div className="flex items-center justify-center w-full">
-      <div className="w-full max-w-sm flex flex-col items-center">
-        <div>
-            <Text className="mt-10 mb-4  " as="p" size="6">Create Your Account</Text>
+    <div className="flex items-center justify-center w-[450px]">
+      <div className="w-full flex flex-col items-center border-white border-solid border-[2px] p-9">
+        <div className="">
+            <Text className="mb-[6rem] mt-2 text-[white]" as="p" size="8">Create Your Account</Text>
         </div>
         <input
           type="file"
@@ -57,7 +56,7 @@ export default function FormComponent() {
         />
         <label
           htmlFor="selectFile"
-          className="rounded-full w-32 h-32 bg-secondary flex items-center justify-center cursor-pointer">
+          className="rounded-full w-32 h-32 text-[white] bg-secondary flex items-center justify-center cursor-pointer">
           {selectedFile ? (
             <img
               src={URL.createObjectURL(selectedFile)}
@@ -68,8 +67,7 @@ export default function FormComponent() {
           )}
         </label>
 
-        <form
-          onSubmit={handleSubmit}
+        <div
           className="flex flex-col my-4 w-full gap-4">
           <div className="space-y-2">
             <label className="text-sm">Username</label>
@@ -79,10 +77,17 @@ export default function FormComponent() {
                 placeholder="Enter username" 
             />
           </div>
-          <Button variant="soft" color="gray">
-            Register
+          <Button onClick={handleSubmit} variant="solid" color="gray">
+          {isLoading ? (
+                        <>
+                            <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                            Registering your accout...
+                        </>
+                    ) : (
+                        "Register"
+                    )}
           </Button>
-        </form>
+        </div>
       </div>
     </div>
   );

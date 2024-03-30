@@ -1,0 +1,32 @@
+
+.inputdiv{
+    border: double 4px transparent;
+    border-radius: 10px;
+    background-image: linear-gradient(white, white),
+                      linear-gradient(270deg, #38266C 0%, #7C7E94 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+  
+  }
+  
+  .inputdiv::after{
+    background: linear-gradient(270deg, #38266C 0%, #7C7E94 100%);
+    content: '';
+    border-radius: 16px;
+  }
+  
+  
+  .input{
+   width: 100%;
+   margin: 0px;
+   padding: 0px;
+   height: 60px;
+   border: 0px;
+   background-color: rgba(255, 255, 255, 0);
+  }
+  
+  input:focus{
+    margin-left: 5px;
+    outline: none
+  }
+  
